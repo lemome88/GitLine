@@ -2899,6 +2899,8 @@ InstallEController.prototype.execute=function(act){ //compose product and create
 
 				DeltaUtils.enactProductComposition(listBranches,ghRepo,ghAuthor);//listBranches= array of feature selected
 			}
+			//EIG: Balioztaketa step1.
+			//EIG: Balioztaketa hasi, "assisted" aukera aukeratu bada.
 			else if(manual=="assisted"){
 			
 				DeltaUtils.createConfigurator(0); 
@@ -3106,10 +3108,11 @@ DeltaUtils.enactForwardPropagation=function(ghUser,ghRepo,fordwardFeature, isNew
 };
 
 
-
-
+//EIG: InsertFeature step1.
+//EIG: InsertFeature sakatzerakoan, agertzen den lehenengo interfazea. Ezaugarri mota aukeratzeko.
 DeltaUtils.interfaceOfInsertFeature=function(insertoption){
 	
+	//EIG: html kodea sortu.
 	var configString='<html><head><title>Insert a Feature</title></head>';
 	if(insertoption==1){
 		configString+=("<div align='center'>");
@@ -3122,6 +3125,7 @@ DeltaUtils.interfaceOfInsertFeature=function(insertoption){
 		configString+=("<br></div></html>");
 
 	}
+	//EIG: interfazea sortuko duen funtzioari deitu.
 	UI.Dialog.show_insertFeatureInterfaze(configString,1);
 
 }
@@ -3165,20 +3169,7 @@ DeltaUtils.interfaceOfPropagation=function(){
 }
 
 DeltaUtils.selectedCheckIssue=function(docu,title){
-		  // perform the security-sensitive operation here
-		/*  window.console.log("in check issue");
-		var checkedValue = null; 
-		var parser = new DOMParser();
-		var html_nodes= docu;// parser.parseFromString(configString,"text/html");
-		var inputElements = html_nodes.getElementsByClassName('issue');
-		var issueSelected = "";
 
-		for(var i=0; i<inputElements.length; i++){
-			if(inputElements[i].checked){//if checked
-				issueSelected+=inputElements[i].value+" ";
-				//var numOfissue= inputElement[i]
-			}
-		}*/
 		window.console.log("in selectedCheckIssue");
 		//DeltaUtils.editIssue(issueSelected);
 		var token=GitHub.getAuthenticityToken();
@@ -3201,125 +3192,84 @@ DeltaUtils.selectedCheckIssue=function(docu,title){
 				var newFeature= arrayOfFeatures[5].substring(1,arrayOfFeatures[5].length-1);
 				var kind= arrayOfFeatures[1];
 				window.console.log("Parent: "+parent+" ------> New Feature: "+ newFeature+"---> Kind: "+kind);
-				DeltaUtils.createConfiguratorForPropagation(kind,parent,newFeature);
+				DeltaUtils.createConfiguratorForPropagation(kind,parent,newFeature,issues);
 		
 			});
 		});
 		
  
 }
+//EIG: InsertFeature step2 || InsertFeature step4
+//EIG: Ezaugarri mota edo ezaugarriaren gurasoa aukeratu ondoren exekutatzen da.
+//EIG: Egoeraren arabera, interfaze bati edo besteari deituko zaio.
+//docu --> ezaugarri mota edo ezaugarriaren gurasoa aukeratzeko erabili den html-a.
+//phase=1 --> ezaugarri mota zein den jakin nahi da.
+//phase=2 --> ezaugarriaren gurasoa zen den jakin nahi da.
 DeltaUtils.selectedInsert=function(docu,phase,allFeatures, kind){
-	window.console.log(222311);
-		  // perform the security-sensitive operation here
 		var checkedValue = null; 
 		var parser = new DOMParser();
 		var html_nodes= docu;// parser.parseFromString(configString,"text/html");
-
+		//EIG: Aukeratu zein den lortu nahi den informazioa: mota edo gurasoa.
 		if(phase==1){
-		var inputElements = html_nodes.getElementsByClassName('kind');
+			var inputElements = html_nodes.getElementsByClassName('kind');
 		}
 
 		if(phase==2){
-		var inputElements = html_nodes.getElementsByClassName('features');
+			var inputElements = html_nodes.getElementsByClassName('features');
 		}
-
-		//get the checked option
+		//EIG: Lortu aurreko pausoan aukerratutako aukera.
 		var checkedOption = "";
 		for(var i=0; i<inputElements.length; i++){
 			if(inputElements[i].checked){//if checked
 				checkedOption+=inputElements[i].value;
 			}
 		}
-		window.console.log("Kind of insert: "+checkedOption);
-
+		
+		//EIG: Ez dago aukeratutako aukerarik.
 		if(checkedOption==""){
 			window.alert("You have to select one option");
 			DeltaUtils.selectedInsert(docu);
 		}
 
-
+		//EIG: Aukeratutako mota MANDATORY edo OPTIONAL da
 		if(checkedOption=="mandatory" || checkedOption=="optional" ){
 			window.console.log("mandatory of optional");
 			DeltaUtils.createConfigurator(3,checkedOption);
 
 		}
+		//EIG: Aukeratutako mota ALTERNATIVE da
 		else if(checkedOption=="alternative"){
 			window.console.log("alternative");
 			DeltaUtils.createConfigurator(4,checkedOption);
 
+		//EIG: Aukeratutakoa ezaugarriaren gursasoa da
 		} else{
-			
 			window.console.log("Ezaugarria aukeratuta");
-
 			DeltaUtils.validNameOfNewFeature(allFeatures,checkedOption,kind);
-			
 
-			
-
-			//EIG: insert the name of the new feature, valid the name
-			/*var newName =window.prompt("Name of the new feature");
-			var arraynewName = newName.split(' ');
-			var arrayOfFeatures = allFeatures.split(' ');
-			newName="";
-			for (i=0; i<arraynewName.length;i++){
-				newName+=arraynewName[i];*/
-				
-			//}
-			/*if (newName==""){
-				window.alert("Write a name for de new feature");
-				DeltaUtils.selectedInsert(docu, phase, allFeatures,kind);
-
-			}
-			window.console.log(newName);
-			window.console.log("arrayofFEatures:"+arrayOfFeatures);
-			for (i=0; i<arrayOfFeatures.length-1;i++){
-				window.console.log(arrayOfFeatures[i]);
-				if(newName.toLowerCase()==arrayOfFeatures[i].toLowerCase()){
-					window.alert("The name of two features can not be repeated");
-					DeltaUtils.selectedInsert(docu, phase, allFeatures,kind);
-				}
-			}*/
-
-
-			//EIG: if the name is valid, insert in de model.
-			/*if(kind=="mandatory"){
-				var kindOption=0;
-			}
-			if(kind=="optional"){
-				var kindOption=1;
-			}
-			if(kind=="alternative"){
-				var kindOption=2;
-			}
-			var insertValid=insertFeature(checkedOption, newName,kindOption);
-			var user=GitHub.getUserName(); 
-	 		var token=GitHub.getAuthenticityToken(); 
-	 		var repo=GitHub.getCurrentRepository(); 
-	 		if(insertValid==0){
-				window.alert(" The change is not valid");
-				DeltaUtils.interfaceOfInsertFeature(1);
-			}else{
-				DeltaUtils.createBranch(checkedOption, newName,user,repo,token,DeltaUtils.editModelFile(kind,insertValid));
-			}*/
-	}
+		}
 
 
 }
 
-
+//EIG: InsertFeature step4
+//EIG: Ezaugarri berriaren izena lortu eta baliozkoa dela ziurtatzen du.
+//EIG: Izenak zuriuneak baditu, kentzen ditu.
 DeltaUtils.validNameOfNewFeature=function(allFeatures,checkedOption,kind){
-
+	//EIG: Izena galdetzeko leihoa sortu
 	var valid=1;
 	var newName =window.prompt("Name of the new feature");
+	
+	//EIG Izenari zuriuneak kendu
 	var arraynewName = newName.split(' ');
 	var arrayOfFeatures = allFeatures.split(' ');
 	newName="";
-
 	for (i=0; i<arraynewName.length;i++){
 		newName+=arraynewName[i];
 				
 	}
 
+	//EIG: Izenik ez bada sartu, berriz ere eskatu.
 	if (newName==""){
 		window.alert("Write a name for the new feature");
 		valid=0;
@@ -3327,6 +3277,8 @@ DeltaUtils.validNameOfNewFeature=function(allFeatures,checkedOption,kind){
 	}
 	window.console.log(newName);
 	window.console.log("arrayofFEatures:"+arrayOfFeatures);
+
+	//EIG: Izena ez dela errepikatzen ziurtatu. Errepikatzen bada, berriz ere eskatu.
 	for (i=0; i<arrayOfFeatures.length-1;i++){
 		window.console.log(arrayOfFeatures[i]);
 		if(newName.toLowerCase()==arrayOfFeatures[i].toLowerCase()){
@@ -3336,69 +3288,85 @@ DeltaUtils.validNameOfNewFeature=function(allFeatures,checkedOption,kind){
 		}
 	}
 
+	//EIG: Izena ez bada errepikatzen, konfirmazioa eskatu eta ezaugarria sortu.
 	if(valid==1){
 		window.console.log("return 1");
-		DeltaUtils.createFeature(checkedOption,kind,newName);
+		var confirm =window.confirm( "Information of the new feature \n-Kind: "+ kind+"  \n-Paren:"+checkedOption+" \n-Name:" + newName);
+		if (confirm == true) {
+		    DeltaUtils.createFeature(checkedOption,kind,newName);
+		} 
 	}
 
 	
 }
 
+//EIG: InsertFeature step6
+//EIG: Ebatzaileari deia egiten dio.
 DeltaUtils.createFeature=function(checkedOption,kind,newName){
-			if(kind=="mandatory"){
-				var kindOption=0;
-			}
-			if(kind=="optional"){
-				var kindOption=1;
-			}
-			if(kind=="alternative"){
-				var kindOption=2;
-			}
-			var insertValid=insertFeature(checkedOption, newName,kindOption);
-			var user=GitHub.getUserName(); 
-	 		var token=GitHub.getAuthenticityToken(); 
-	 		var repo=GitHub.getCurrentRepository(); 
-	 		if(insertValid==0){
-				window.alert(" The change is not valid");
-				DeltaUtils.interfaceOfInsertFeature(1);
-			}else{
-				DeltaUtils.createBranch(checkedOption, newName,user,repo,token,DeltaUtils.editModelFile(kind,insertValid,newName,checkedOption));
-			}
+
+	//EIG: ezaugarri motaren arabera, aldagai bat sortu ebatzaileari dei egokia egiteko
+	if(kind=="mandatory"){
+		var kindOption=0;
+	}
+	if(kind=="optional"){
+		var kindOption=1;
+	}
+	if(kind=="alternative"){
+		var kindOption=2;
+	}
+
+	//EIG: Ebatzaileari deia egin,
+	var insertValid=insertFeature(checkedOption, newName,kindOption);
+	var user=GitHub.getUserName(); 
+	var token=GitHub.getAuthenticityToken(); 
+	var repo=GitHub.getCurrentRepository(); 
+
+	//EIG: Txertaketan arazoren bat gertatu bada, step1-era bueltatu
+	if(insertValid==0){
+		window.alert(" The change is not valid");
+		DeltaUtils.interfaceOfInsertFeature(1);
+	//EIG: Txertaketa ondo burutu bada, adar berria sortu.
+	}else{
+		DeltaUtils.createBranch(checkedOption, newName,user,repo,token,DeltaUtils.editModelFile(kind,insertValid,newName,checkedOption));
+	}
 	
 }
 
+//EIG: InsertFeature step8
+//EIG: Ebatzaileak itzulitako ezaugarri eredu berria biltegian dagoen model.xml fitxategian gorde.
 DeltaUtils.editModelFile=function(kind,insertValid,newName,checkedOption){
-
+	//EIG: Beharrezko aldagaiak lortu
 	var token=GitHub.getAuthenticityToken();
 	var user=GitHub.getUserName();  
 	var author=GitHub.getCurrentAuthor(); 
 	var repo=GitHub.getCurrentRepository(); 
 	var ghUser=new Gh3.User(user);
-	var ghUserRepo=new Gh3.Repository(repo,ghUser);
+	var ghUserRepo=new Gh3.Repository(repo,ghUser);	
 	DeltaUtils.sleep(1000);
+	//EIG: Biltegia atzitu
 	ghUserRepo.fetch(function (err, res) {
 		window.console.log(ghUserRepo);
-		window.console.log("lehenengo fetch");
 		if(err) { window.console.log("ERROR ghRepo.fetch");}
+		//EIG: Adarrak atzitu
 		ghUserRepo.fetchBranches(function(err,res){
+			//EIG: Master adarr lortu
 			var master= ghUserRepo.getBranchByName("master");
 			master.fetchCommits(function(err,res){
 				var commit=master.getLastCommit().sha;
 				window.console.log("commit for postinf product "+commit);
+				//EIG: model.xml fitxategiaren edukia aldatu. InsertValid aldagaian dagoen edukia txertatu.
 				DeltaUtils.editFile(user, repo, "master","model.xml",commit, token, insertValid, "new model.xml",null);
 			});
 		});
 	});
-
+	//EIG: Jakinarazpena sortu.
 	window.console.log("CreateIssue");
 	DeltaUtils.createIssue(newName,"You have to propagate '"+newName+"' feature",checkedOption,kind);
-	
-	//DeltaUtils.createConfiguratorForPropagation(kind);
 }
 
 
 
-DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFeature,forksWithParent){
+DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFeature,forksWithParent,issue){
 		//var kont=0;
 	//for (j=0; j<Forks.length;j++){
 		var repo=GitHub.getCurrentRepository();
@@ -3445,7 +3413,7 @@ DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFea
 										configString+=("<br>");
 								
 										window.console.log(configString);
-										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1);//borratu ezazu nahi eskero Eider
+										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);//borratu ezazu nahi eskero Eider
 										//lerro hau jarri behar izan dut pantailatxoa ikusteko
 			   							
 									}	
@@ -3461,16 +3429,16 @@ DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFea
 											window.console.log(ghRepo);
 											var issues= ghRepo.getIssues();
 											var kontIssue=0;
-											DeltaUtils.isParentInIssue(issues,kontIssue, 0, Forks, newFeature, parent);
+											DeltaUtils.isParentInIssue(issues,kontIssue, 0, Forks, newFeature, parent, issue);
 										
 										});
 								}else{
-										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1);
+										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);
 								}
 
 								}else{
 									kont=kont+1;
-									DeltaUtils.readProductConfig(Forks,parent,configString,kind,kont,newFeature,forksWithParent);								
+									DeltaUtils.readProductConfig(Forks,parent,configString,kind,kont,newFeature,forksWithParent, issue);								
 
 							}
 									
@@ -3487,7 +3455,7 @@ DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFea
 	//}
 }
 
-DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, parent){
+DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, parent, issue){
 	configString="";
 	var issueTitle= issues[kont].title.split("_");
 
@@ -3503,12 +3471,12 @@ DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, 
 		}else{
 			configString+=("<p> You have to propagate "+ parent + " feature before </p>");
 		}
-		UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,0);
+		UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,0, issue);
 	
 	}else{
 		window.console.log("is in else");
 		kont=kont+1;
-		DeltaUtils.isParentInIssue(issues,kont, isInIssue, Forks, newFeature, parent);
+		DeltaUtils.isParentInIssue(issues,kont, isInIssue, Forks, newFeature, parent, issue);
 	}
 
 }
@@ -3516,8 +3484,7 @@ DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, 
 
 
 
-
-DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,forksWithParent){
+DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,forksWithParent,issue){
 	
 	var user=GitHub.getUserName(); 
 	var repo=GitHub.getCurrentRepository(); 
@@ -3540,7 +3507,7 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 			configString+=("<p> Forks of the repository </p>");
 			if(Forks.length==0){
 				configString+=("<p> NO forks of the repository </p>");
-				UI.Dialog.show_ForksOfRepository (configString,0);
+				UI.Dialog.show_ForksOfRepository (configString,0,issue);
 			}
 			if(kind=="mandatory"){
 				configString+=("<p> The feature will spread to all products </p>");
@@ -3550,7 +3517,7 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 			}
 
 			var forksWithParent=0;
-			DeltaUtils.readProductConfig(Forks,parent,configString,kind,0,newFeature,forksWithParent );
+			DeltaUtils.readProductConfig(Forks,parent,configString,kind,0,newFeature,forksWithParent,issue );
 		});
 	});
 
@@ -3563,7 +3530,7 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 var multiPropagationCount=0;
 var multiPropagationTimeOut="undefined";
 var Forks, newFeaure;
-DeltaUtils.selectedCheckForks=function(docu, Forks, newFeature){
+DeltaUtils.selectedCheckForks=function(docu, Forks, newFeature, issue){
 	Forks=Forks;
 	newFeature=newFeature;
 	window.console.log("in selectedCheckForks");
@@ -3579,151 +3546,170 @@ DeltaUtils.selectedCheckForks=function(docu, Forks, newFeature){
 		var parser = new DOMParser();
 		var html_nodes= docu;// parser.parseFromString(configString,"text/html");
 		var inputElements = html_nodes.getElementsByClassName('features');
+		var forkSelectedind =[];
 		var forkSelected =[];
 		var forkkont=0;
 
 		for(var i=0; i<inputElements.length; i++){
 			if(inputElements[i].checked){//if checked
-				forkSelected[forkkont]=inputElements[i].value;
+				forkSelectedind[forkkont]=inputElements[i].value;
 				forkkont=forkkont+1;
 			}
 
 		}
-		/*window.console.log("selected forks: "+forkSelected);
-		DeltaUtils.enactForwardPropagation(ghUser,Forks[0],newFeature,true);
+
+		for(var i=0; i<forkSelectedind.length; i++){
+
+			forkSelected[i]=Forks[forkSelectedind[i]]
+		}
+
+		window.console.log(Forks);
+		window.console.log(forkSelected);
+
+		var titleIssue= GitHub.getissueTitle();
+		window.console.log("editissue" + titleIssue);
+		titleIssue=titleIssue.substring(1,titleIssue.length);
+		DeltaUtils.editIssue(titleIssue);
+
 		
-		DeltaUtils.sleep(10000);
-		DeltaUtils.newSeedConfig="";
-		DeltaUtils.enactForwardPropagation(ghUser,Forks[1],newFeature,true);
-*/
-		
-		
-		multiPropagationCount=0;
-		//EIDER HEMEN
-		 multiPropagationTimeOut=window.setInterval(function(){
-			 DeltaUtils.forwardRecursive(Forks, newFeature, multiPropagationCount);
-		 },15000);
+		multiPropagationCount=0; 
+		window.console.log("BeforeRecursive");
+		multiPropagationTimeOut=window.setInterval(function(){
+		 DeltaUtils.forwardRecursive(forkSelected, newFeature, DeltaUtils.recursivekont, issue);
+		},15000);
 			
 }
 
-DeltaUtils.forwardRecursive=function(Forks, newFeature, multiPropagationCount){
-	window.console.log("RECURSIVE KONT:"+ multiPropagationCount);
+DeltaUtils.forwardRecursive=function(Forks, newFeature, multiPropagationCount, issue){
 	var user=GitHub.getUserName(); 
 	var ghUser=new Gh3.User(user);
-	window.console.log("Kont"+ multiPropagationCount);
-	window.console.log("Lengh "+ Forks.length);
-	if(multiPropagationCount < Forks.length){
-		window.console.log("Deia fork "+ Forks[multiPropagationCount].user.login);
-		DeltaUtils.enactForwardPropagation(ghUser,Forks[multiPropagationCount],newFeature,true);
-		multiPropagationCount=multiPropagationCount+1;
-		
-		//multiPropagationTimeOut=window.setInterval(function(Forks, newFeature, multiPropagationCount){
-			//DeltaUtils.forwardRecursive(Forks, newFeature, multiPropagationCount);
-		//},4000);
-		
+	if(DeltaUtils.recursivekont < Forks.length){
+		window.console.log("Deia fork "+ Forks[DeltaUtils.recursivekont].user.login);
+		window.console.log("Deltakont "+ DeltaUtils.recursivekont);
+		DeltaUtils.enactForwardPropagation(ghUser,Forks[DeltaUtils.recursivekont],newFeature,true);
+		DeltaUtils.recursivekont=DeltaUtils.recursivekont+1;
 	}
 	else {
+		//DeltaUtils.editIssue(issue);
+		/*var titleIssue= GitHub.getissueTitle();
+		window.console.log("editissue" + titleIssue);
+		titleIssue=titleIssue.substring(1,titleIssue.length);
+		DeltaUtils.editIssue(titleIssue);*/
 		window.clearInterval(multiPropagationTimeOut);
 		window.alert("finished propagating changes!");
 	}
 
 
-	//DeltaUtils.enactForwardPropagation(ghUser,Forks[0],newFeature,true);
-
-
 }
 
+
+
+//EIG: Balioztaketa step2 
+//EIG: Konfiguradorearen interfazea sortu, option parametroaren arabera interfazea ezberdina izango da. Kind bakarrik insertFeature funtzionalitatean.
+//option=0 --> konfiguradorearen lehenengo agerpena, ezaugarri guztiak aukeraketa egiteko (core ezaugarriak aukeratutak)
+//option=1 --> sartutako konfigurazioa baliozkoa bada agertuko da.
+//option=2 --> sartutako konfigurazioa baliozkoa EZ bada agertuko da.
+//option=3 --> insertFeature funtzionalitatean, ezaugarri GUZTIAK erakusten ditu.
+//option=4 --> insertFeature funtzionalitatean, ALTERNATIVE ezaugarriak soiliki erakusten ditu.
 DeltaUtils.createConfigurator=function(option, kind){
 	//Irakurri feature Modela
+	//EIG: Beharrezko informazioa lortu.
 	var user=GitHub.getUserName(); 
 	var author=GitHub.getCurrentAuthor(); 
 	var ghAuthor= new Gh3.User(author);
 	var repo=GitHub.getCurrentRepository();
 	var token=GitHub.getAuthenticityToken();
-			var ghAuthorRepo= new Gh3.Repository(repo, ghAuthor);
-	    	//1: access repository
-			ghAuthorRepo.fetch(function (err, res) {
-	          if(err) { window.console.log("ERROR 3 ghRepo.fetch"); }
-				//2:fetch repository all branches
-				ghAuthorRepo.fetchBranches(function (err, res) {
-					var master=ghAuthorRepo.getBranchByName("master");//3: get master branh
-					master.fetchContents(function (err, res) {//4: get contents (folders and files) for master branch
-			          if(err) { throw "outch ..." }
-			          var featureModelFile = master.getFileByName("model.xml");//5: get model.xml file
-			      	  if(featureModelFile==null){
-			      	  	window.console.log("Could not reach model.xml file in master branch!\n.");
-			      	  	return;
-			      	  }
-			      	  else{
-			      	  	//Step 2: read model content
-
-			      	  	featureModelFile.fetchContent(function (err, res) {//6:fetch file content
-			      	  		var xml=featureModelFile.getRawContent();//xml String with the xml document content
-			      	  		//window.console.log(xml);//7: gte raw content and display in console
-			      	  		saveFeatureModel(xml,1);
-
-			   
-			      	  		var parser = new DOMParser();
- 				  			var xmlNodes = parser.parseFromString(xml, "application/xml");
-			      	  		//window.console.log("Node: \n"+xmlNodes);
-			      	  		
-			      	  		
-			      	  		var configString='<html><head><title>GitDelta Configurator</title></head>';//</body></html>';
+	var ghAuthorRepo= new Gh3.Repository(repo, ghAuthor);
+	//EIG: biltegia atzitu.
+	ghAuthorRepo.fetch(function (err, res) {
+	    if(err) { window.console.log("ERROR 3 ghRepo.fetch"); }
+		//EIG: biltegiaren adar guztiak atzitu.
+		ghAuthorRepo.fetchBranches(function (err, res) {
+			//EIG: "master" adarra atzitu
+			var master=ghAuthorRepo.getBranchByName("master");
+			//EIG: "master" adarraren fitxategiak eta direktoriak lortu.
+			master.fetchContents(function (err, res) {
+				if(err) { throw "outch ..." }
+					//EIG: "model.xml" fitxategia lortu.
+				    var featureModelFile = master.getFileByName("model.xml");
+				    if(featureModelFile==null){
+				      	window.console.log("Could not reach model.xml file in master branch!\n.");
+				      	return;
+				    }
+				    else{
+				      	//EIG: "model.xml" fitxategiaren edukia lortu.
+						featureModelFile.fetchContent(function (err, res) {
+							//EIG: xml fitxategiaren edukia duen String --> xml
+				      		var xml=featureModelFile.getRawContent();//xml String with the xml document content
+				      	  	//EIG: ezaugarri eredua lokalean gorde.
+				      	  	saveFeatureModel(xml,1);
+				      	  	//EIG: xml String-a parseatu DOM erabili ahal izateko.
+							var parser = new DOMParser();
+	 				  		var xmlNodes = parser.parseFromString(xml, "application/xml");
+				      	  	//EIG: configString--> interfazearen HTML kodea metatzen joango den  String-a.
+				      	  	var configString='<html><head><title>GitDelta Configurator</title></head>';//</body></html>';
 							
+							//EIG: konfiguradorearen lehenengo interfazea sortu (ezaugarri guztiak aukeraketa egiteko).
 							if(option==0){
-								//EIG: get Core features
+								//EIG: lortu core ezaugarriak .txt fitxategian, aukeratutak agertzeko.
 			      	  			validProduct(1);
+			      	  			//EIG: ezaugarri ereduan dauden ezaugarri guztiak lortu interfazean agertzeko.
 								path="//feature/@name | //solitaryFeature/@name | //groupedFeature/@name"
 								var nodes=xmlNodes.evaluate(path, xmlNodes, null, XPathResult.ANY_TYPE, null);
 								var result=nodes.iterateNext();
+								//EIG: core ezaugarriak .txt batetik String-era pasa.
 								var arrayofFeaturesReverse= readFileForExplanation(3);
 								var kont=1;
+								//EIG: Interfazea sortzen jarraitu.
+								//EIG: Ezaugarri guztiak checkbox batekin listaratuta agertuko dira. Core ezaugarriak aukeratutak agertuko dira.
 								configString+=("<div align='center'>");
-								configString+=("<p> Select the features for your product </p>");
+								if(result==null){
+									configString+=("<p> The feature model is empty or wrong</p>");
+									option=5;
+								}else{
+									configString+=("<p> Select the features for your product </p>");
+								}
+								
 								while (result){
 									  var core=0;
 									  configString+=("<input value=");
 									  configString+=(result.nodeValue);
 									  window.console.log("Uneko ezaugarria:"+ result.nodeValue+ "Kontadore: "+kont);
 									  window.console.log(arrayofFeaturesReverse);
-									 for (i=0; i<arrayofFeaturesReverse.length-1;i++){
+									  for (i=0; i<arrayofFeaturesReverse.length-1;i++){
 									  		window.console.log("infor");
 											if(arrayofFeaturesReverse[i]==result.nodeValue){
 												core=1
 												window.console.log("in core");
 											}
-										
-										
 										}
-
-									 if(core==1){
-									 	configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
-									 	window.console.log("in DISABLED:"+result.nodeValue+kont);
-									 	kont=kont+1;
-									 }else{
-									  	configString+=("  name='features' class='features' type=checkbox  />");
-									 }
-									  
-									  configString+=(result.nodeValue);
-									  configString+=("<br>");
-									  result=nodes.iterateNext();
+										//EIG: ezaugarria aukeratuta agertu behar bada.
+										if(core==1){
+										 	configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
+										 	window.console.log("in DISABLED:"+result.nodeValue+kont);
+										 	kont=kont+1;
+										//EIG: ezaugarria aukeratu gabe agertu behar bada.
+										 }else{
+										  	configString+=("  name='features' class='features' type=checkbox  />");
+										 }
+										  
+										  configString+=(result.nodeValue);
+										  configString+=("<br>");
+										  result=nodes.iterateNext();
 								}
-								//configString+=("</center>");
 								configString+=("</div>");
 								configString+='</body></html>';
+								//EIG: interfazea sortuko duen funtzioari deitu.
 								UI.Dialog.show_product_configurator_dialog(configString,DeltaUtils.selectedCheck,DeltaUtils.selectedCheck,option);
 							}
-							//EIG: if the product is valid
-							if(option==1){
 
+							//EIG:Produktua baliozkoa bada
+							if(option==1){
 								configString+=("<td><div align='center'>");
 								configString+=("<p> Your product is valid </p>");
-								var arrayofFeatures= readFileSelectedFeaturesLocal();
-								window.console.log("Array-a banaka");
-								window.console.log(arrayofFeatures);
-								window.console.log(arrayofFeatures.length);
-								window.console.log(arrayofFeatures[1]);
-								window.console.log(arrayofFeatures[2]);
+								//EIG: irakurri aukeratutako ezaugarriak lokaleko fitxategiatik.
+								var arrayofFeatures= readFileForExplanation(2);
+								//EIG: produktuaren ezaugarri guztiak listaratuak agertuko dira.
 								configString+=("<ul>");
 									for (i=0; i<arrayofFeatures.length-1;i++){
 										window.console.log("in for valid");
@@ -3731,89 +3717,58 @@ DeltaUtils.createConfigurator=function(option, kind){
 										configString+=(arrayofFeatures[i]);
 										configString+=("</li>");
 									}
-									configString+=("</ul>");
-									configString+=("</div></td>");
+								configString+=("</ul>");
+								configString+=("</div></td>");
 								configString+='</body></html>';
+								//EIG: interfazea sortuko duen funtzioari deitu.
 								UI.Dialog.show_product_configurator_dialog(configString,DeltaUtils.selectedCheck,DeltaUtils.selectedCheck,option);
 							}
 
 
-							//EIG: if the product is NOT valid
+							//EIG: Produktua EZ  da baliozkoa. 3 Zati nagusi bereiztuko dira.
 							if(option==2){
 								configString+=("<table style='width:100%''>");
 								configString+=("<tr><th  style='bold' colspan='3'>Your porduct is NOT valid </td></tr>");
 								configString+=("<tr><td  width='30%'>Selected features </td><td width='30%'>Features to deselect </td><td width='30%'> Proposed product</td></tr>");
-								
-								//EIG: checkbox-ak
+								//EIG: 1.ZATIA: Selected Featurez zutabea
 								configString+=("<tr><td   width='30%'><div align='center'>");
 								path="//feature/@name | //solitaryFeature/@name | //groupedFeature/@name"
 								var nodes=xmlNodes.evaluate(path, xmlNodes, null, XPathResult.ANY_TYPE, null);
 								var result=nodes.iterateNext();
+								//EIG: aukeratutako ezaugarriak lortu (selectedFeatures.txt)
 								var arrayofFeatures= readFileForExplanation(2);
+								//EIG: derrigorrezko ezaugarriak lortu (featuresOnEvery.txt)
 								var arrayofFeaturesEveryReverse= readFileForExplanation(3);
 								window.console.log("NOT Valid product");
-								/*var arrayofFeaturesEvery = [];
-								var size= arrayofFeaturesEveryReverse.length-1;
-								
-								for (i=0; i<arrayofFeaturesEveryReverse.length-1;i++){
-										
-										arrayofFeaturesEvery[size]=arrayofFeaturesEveryReverse[i];
-										size--;
-										
-								}*/
-
-
-
 								var kont=0;
 								var kontEvery=1;
 								while (result){
-									  configString+=("<input value=");
-									  configString+=(result.nodeValue);
-									  var core=0;
-									 	for (i=0; i<arrayofFeaturesEveryReverse.length-1;i++){
-
-											if(arrayofFeaturesEveryReverse[i]==result.nodeValue){
-												core=1
-											}
-										
-										
+									configString+=("<input value=");
+									configString+=(result.nodeValue);
+									var core=0;
+									for (i=0; i<arrayofFeaturesEveryReverse.length-1;i++){
+										if(arrayofFeaturesEveryReverse[i]==result.nodeValue){
+											core=1
 										}
-
-									  if(core==1){
-									  	configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
-									  	window.console.log("in DISABLED:"+result.nodeValue+kont);
-									  	kont=kont+1;
-									  }else if(arrayofFeatures[kont]== result.nodeValue){
-									  	configString+=("  name='features' class='features' type=checkbox   checked/>");
-									  	kont++;
-									  }else{
-									  	configString+=("  name='features' class='features' type=checkbox  />");
-									  }
-									  
-									 /* if(arrayofFeaturesEvery[kontEvery]== result.nodeValue){
-									  	configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
-									  	kont++;
-									  	kontEvery++;
-									  }
-									  else if(arrayofFeatures[kont]== result.nodeValue){
-									  	configString+=("  name='features' class='features' type=checkbox   checked/>");
-									  	kont++;
-									  }
-									  
-									  else{
-									  	configString+=("  name='features' class='features' type=checkbox  />");
-									  }*/
-									  configString+=(result.nodeValue);
-									  configString+=("<br>");
-									  result=nodes.iterateNext();
+									}
+									if(core==1){
+									  configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
+									  window.console.log("in DISABLED:"+result.nodeValue+kont);
+									  kont=kont+1;
+									}else if(arrayofFeatures[kont]== result.nodeValue){
+									  configString+=("  name='features' class='features' type=checkbox   checked/>");
+									  kont++;
+									}else{
+										configString+=("  name='features' class='features' type=checkbox  />");
+									}
+									configString+=(result.nodeValue);
+									configString+=("<br>");
+									result=nodes.iterateNext();
 								}
-
 								configString+=("</div></td>");
-								
-
-
-								//EIG: Features to deselect
+								//EIG: 2.ZATIA Features To Deselect zutabea
 								configString+=("<td width='30%'><div align='center'>");
+								//EIG: FeaturesToDeselect.txt irakurri
 								var arrayofFeatures= readFileForExplanation(0);
 								configString+=("<ul>");
 									for (i=0; i<arrayofFeatures.length-1;i++){
@@ -3821,39 +3776,45 @@ DeltaUtils.createConfigurator=function(option, kind){
 										configString+=(arrayofFeatures[i]);
 										configString+=("</li>");
 									}
-
 								configString+=("</ul>");
 								configString+=("</div></td>");
-
-								//EIG: Proposed product
+								//EIG: 3.ZATIA Proposed Product zutabea
 								configString+=("<td width='30%'><div align='center'>");
-								//configString+=("<p> Proposed product </p>");
+								//EIG: ProposedProductFile.txt irakurri
 								var arrayofFeatures= readFileForExplanation(1);
 								configString+=("<ul>");
 									for (i=0; i<arrayofFeatures.length-1;i++){
 										configString+=("<li>");
 										configString+=(arrayofFeatures[i]);
 										configString+=("</li>");
-									}
-									
+									}									
 								configString+=("</ul>");
 								configString+=("</div></td>");
- 
 								configString+=("</tr></table>");
-
 								configString+='</body></html>';
+								//EIG: interfazea sortuko duen funtzioari deitu.
 								UI.Dialog.show_product_configurator_dialog(configString,DeltaUtils.selectedCheck,DeltaUtils.selectedCheck,option);
 							}
 
-							//EIG: all features to select one (insertFeature)
+							//EIG: Txertatu nahi den ezaugarria MANDATORY edo OPTIONAL bada, ezaugarri GUZTIAK pantailaratu.
 							if(option==3){
+								//EIG: ezaugarri eredua lokalean gorde.
 								saveFeatureModel(xml,2);
+								//EIG: ezaugarri guztiak listaratuko dira "radio" batekin.
 								path="//feature/@name | //solitaryFeature/@name | //groupedFeature/@name"
 								var nodes=xmlNodes.evaluate(path, xmlNodes, null, XPathResult.ANY_TYPE, null);
 								var result=nodes.iterateNext();
 								var allFeatures = "";
 								configString+=("<div align='center'>");
-								configString+=("<p> Where do you want to insert the new feature ? </p>");
+								window.console.log("in option3");
+								if(result==null){
+									window.console.log("in option3 null");
+									configString+=("<p> The feature model is empty or wrong</p>");
+									option=5;
+								}else{
+									configString+=("<p> Where do you want to insert the new feature ? </p>");
+								}
+								
 								while (result){
 									  configString+=("<input value=");
 									  configString+=(result.nodeValue);
@@ -3866,18 +3827,27 @@ DeltaUtils.createConfigurator=function(option, kind){
 								configString+=("</div>");
 								configString+='</body></html>';
 								window.console.log(allFeatures);
-								UI.Dialog.show_insertFeatureInterfaze(configString,2,allFeatures,kind);
+								//EIG: interfazea sortuko duen funtzioari deitu.
+								UI.Dialog.show_insertFeatureInterfaze(configString,2,allFeatures,kind,option);
 							}
-							//EIG: features with alternative (insertFeature)
+							//EIG: Txertatu nahi den ezaugarria ALTERNATIVE bada, bakarrik egitura hori duten ezaugarriak pantailaratu.
 							if(option==4){
+								//EIG: ezaugarri eredua lokalean gorde.
 								saveFeatureModel(xml,2);
 								window.console.log("option4");
+								//EIG: bakarrik alternative egitura duten ezaugarriak listaratuko dira "radio" batekin.
 								path="//solitaryFeature[setRelation/cardinality/@max>1]/@name | //groupedFeature[setRelation/cardinality/@max>1]/@name"
 								var nodes=xmlNodes.evaluate(path, xmlNodes, null, XPathResult.ANY_TYPE, null);
 								var result=nodes.iterateNext();
 								var allFeatures = "";
 								configString+=("<div align='center'>");
-								configString+=("<p> Where do you want to insert the new feature ? </p>");
+								if(result==null){
+									configString+=("<p> No features with or-inclusive architecture or the feature model is wrong</p>");
+									option=5;
+								}else{
+									configString+=("<p> Where do you want to insert the new feature ? </p>");
+								}
+								
 								while (result){
 									  configString+=("<input value=");
 									  configString+=(result.nodeValue);
@@ -3890,13 +3860,10 @@ DeltaUtils.createConfigurator=function(option, kind){
 								configString+=("</div>");
 								configString+='</body></html>';
 								window.console.log(allFeatures);
-								UI.Dialog.show_insertFeatureInterfaze(configString,2,allFeatures,kind);
+								//EIG: interfazea sortuko duen funtzioari deitu.
+								UI.Dialog.show_insertFeatureInterfaze(configString,2,allFeatures,kind,option);
 							}
 			
-							//configString+='</body></html>';
-							
-
-							//UI.Dialog.show_product_configurator_dialog(configString,DeltaUtils.selectedCheck,DeltaUtils.selectedCheck,option);
 			      	  	});
 			      	  }
 			      	});
@@ -3904,67 +3871,50 @@ DeltaUtils.createConfigurator=function(option, kind){
 			});
 }
 
+//EIG: CheckValidity sakatzerakoan exekutatzen da. Aukeratutako ezaugarriak lortzen dira.
 DeltaUtils.selectedCheck=function(docu){
 	window.console.log(222311);
-		  // perform the security-sensitive operation here
-		var checkedValue = null; 
-		var parser = new DOMParser();
-	//	window.console.log(configString);
-		var html_nodes= docu;// parser.parseFromString(configString,"text/html");
-		//window.console.log(html_nodes);
-		var inputElements = html_nodes.getElementsByClassName('features');
-		//window.console.log("inputElements "+inputElements.length);
-		//window.console.log(inputElements);
-		var featuresSelected = "";
-		for(var i=0; i<inputElements.length; i++){
-			//window.console.log(inputElements[i].value);
-			window.console.log(i);
-			if(inputElements[i].checked){//if checked
-				featuresSelected+=inputElements[i].value+" ";
-			}
+	var checkedValue = null; 
+	//EIG: parametro bezala jasotako html kodetik, class=features guztiak lortu.
+	var parser = new DOMParser();
+	var html_nodes= docu;
+	var inputElements = html_nodes.getElementsByClassName('features');
+	var featuresSelected = "";
+	//EIG: aukeratutako ezaugarri guztiak featuresSelected-en gorde.
+	for(var i=0; i<inputElements.length; i++){
+		if(inputElements[i].checked){//if checked
+			featuresSelected+=inputElements[i].value+" ";
 		}
-		window.console.log("selected features: "+featuresSelected);
-
-		//EIG: save SelectedFeatures
-		saveSelectedFeatures(featuresSelected);
-	
-	
-		//EIG: read selectedFeaturesLocal
-		//readFileSelectedFeaturesLocal();
-
-		DeltaUtils.checkConfigurationValidity();
-		//call FAMA to check validity of featuresSelected and model.xml
-		//1.Download Model.xml to local folder
-		//2.Call Fama to check validity
-		//3.If 
+	}
+	window.console.log("selected features: "+featuresSelected);
+	//EIG: Gorde aukeratutako ezaugarriak lokalean.
+	saveSelectedFeatures(featuresSelected);
+	//EIG: balioztaketa egingo duen funtzioari deitu
+	DeltaUtils.checkConfigurationValidity();
 }
 
-
+//EIG: Balioztaketa egingo duen funtzioa.
 DeltaUtils.checkConfigurationValidity=function(featureList, featureModel){
-
-
-	//EIG: the product is valid?
+	//EIG: Ebatzailea exekutatuko duen funtzioari deitu.
 	validProduct(2);
-	//EIG: read isValid.txt, is valid de selected product
+	//EIG: isValid.txt irakurri, produktua baliozkoa den ala ez jakiteko.
 	var isValid=readFileIsValid();
 	window.console.log("The product is valid:"+isValid);
-
-	if (isValid==1){ //if validity is correct
-		
+	//EIG: produktua baliozkoa bada, dagokion interfazea sortu.
+	if (isValid==1){ 
 		DeltaUtils.createConfigurator(1);
-		//DeltaUtils.enactProductComposition();
 	}
+	//EIG: produktua baliozkoa EZ bada, dagokion interfazea sortu.
 	else{
-		
 		DeltaUtils.createConfigurator(2);
 	}
 	return false;
 }
 
 
-//EIG: function to create the product whith the valid configuration
-//option=1 --> create product from proposedProductFile.txt
-//option=2 --> create product from selectedFeaturesLocal.txt
+//EIG: baliozko konfigurazioarekin produktua sortzeko funtzioa.
+//option=1 --> proposedProductFile.txt fitxategiatik produktua sortu.
+//option=2 --> selectedFeaturesLocal.txt fitxategiatik produktua sortu.
 DeltaUtils.createProduct=function(option){
 
 	window.console.log("in create product");
@@ -3973,9 +3923,10 @@ DeltaUtils.createProduct=function(option){
 	var ghAuthor = new Gh3.User(author);
 	var ghRepo = new Gh3.Repository(repo, ghAuthor);
 	window.console.log(ghRepo);
-
+	//EIG: dagokion fitxategiatik informazioa lortu.
 	var listBranches=readFileForExplanation(option);
 	listBranches.length=listBranches.length-1;
+	//EIG: produktua sortu.
 	DeltaUtils.enactProductComposition(listBranches,ghRepo,ghAuthor);
 	
 }
@@ -4017,7 +3968,8 @@ DeltaUtils.enactProductComposition=function(listBranches,ghRepo,ghAuthor){//list
 }
 
 DeltaUtils.getUserAccessToken=function(){
-	return "0f3b88a402363ec830c718fde29307468e070f0c"; //Eider Token: "877f51e5b60ac4fa652c21788d2b2d29a12f4556";
+	return "cda3c4c6d92c32677bb3cd0eb2c0a1f88fab4259"; 
+	 //Eider Token: "877f51e5b60ac4fa652c21788d2b2d29a12f4556"  50c7322c9da66aff5eebcb525bfd0b9ad9e39c4c;
 }
 DeltaUtils.getAssanaApiToken=function(){
 	return "2kDOdTDX.8lAUnLWS0V6UIPizPdQhMeI";
@@ -4028,6 +3980,7 @@ DeltaUtils.forwardForks=[];
 DeltaUtils.user="";
 DeltaUtils.newFeature="";
 DeltaUtils.kont=0;
+DeltaUtils.recursivekont=0;
 
 DeltaUtils.currentBranch="master";
 
@@ -4223,24 +4176,7 @@ DeltaUtils.editFile=function(user,repo,branchName,fileName,commit,token,fileCont
 	},"GET");
 	window.console.log(" end in Edit File");
 }
-/*DeltaUtils.editFile=function(user,repo,branchName,fileName,commit,token,fileContent,editMsg){
-	window.console.log(" start in Edit File");
-	window.console.log("User"+user );
-	window.console.log("Repo"+repo );
-	window.console.log("branchname"+branchName );
-	window.console.log("filename"+fileName);
-	window.console.log("commit"+commit);
-	window.console.log("token"+token );
-	window.console.log("fileContent"+fileContent);
-	Utils.XHR("/"+user+"/"+repo+"/blob/"+branchName+"/"+fileName,function(res){
-		Utils.XHR("/"+user+"/"+repo+"/edit/"+branchName+"/"+fileName,function(res){
-			Utils.XHR("/"+user+"/"+repo+"/tree-save/"+branchName+"/"+fileName,function(res){
 
-			},"POST","authenticity_token="+encodeURIComponent(token)+"&filename="+fileName+"&message="+editMsg+"&commit="+commit+"&value="+encodeURIComponent(fileContent)+"&placeholder_message="+editMsg);					
-		},"POST","authenticity_token="+encodeURIComponent(token));
-	},"GET");
-	window.console.log(" start in Edit File");
-}*/
 
 
 DeltaUtils.postFile=function(user,repo,branchName,fileName,file,commit,token,fileContent,createBranches,createPullRequest,newOrUpdateMessage){
@@ -4277,8 +4213,12 @@ DeltaUtils.postFile=function(user,repo,branchName,fileName,file,commit,token,fil
 		},"POST","authenticity_token="+encodeURIComponent(token));
 	},"GET");
 }
-//EIG
+
+
+//EIG: InsertFeature step7
+//EIG: Ezaugarri berriaren izenarekin adar berria sortu.
 DeltaUtils.createBranch=function(parent, newBranchName,user,repo,token,f){
+	//EIG: adar berri bat sortzeko GET eta POST deiak simulatu.
 	window.console.log("createBranch "+newBranchName);
 	Utils.XHR("/"+user+"/"+repo+"/tree/"+parent,function(res){
 		Utils.XHR("/"+user+"/"+repo+"/branches",function(res){
@@ -4286,15 +4226,19 @@ DeltaUtils.createBranch=function(parent, newBranchName,user,repo,token,f){
 	},"GET");
 }
 
+//EIG: InsertFeature step9 (AMAIERA)
+//EIG: Jakinarapena sortzen du.
 DeltaUtils.createIssue=function(newName,body,checkedOption,kind){
-
+	//EIG: Jakinarazpenaren izenburua finkatu
 	var title="New_"+kind+"_feature_of_"+checkedOption+"_("+newName+")";
 	window.console.log(title);
+	//EIG: Beharrezko aldagaiak lortu
 	var user=GitHub.getUserName(); 
 	var repo=GitHub.getCurrentRepository(); 
 	var token=GitHub.getAuthenticityToken();
 	window.console.log("createIsue "+title);
 	window.console.log(user+repo+token);
+	//EIG: Jakinarazpena sortzeko GET eta POST deia simulatu
 	Utils.XHR("/"+user+"/"+repo+"/issues/new",function(res){
 		Utils.XHR("/"+user+"/"+repo+"/issues",function(res){
 		},"POST","authenticity_token="+encodeURIComponent(token)+"&issue[title]="+title+"&issue[body]="+body);	
@@ -4828,45 +4772,48 @@ UI.Dialog = {
 		* @param {function} yes_callback
 		* @param {function} no_callback
 		**/
-		show_insertFeatureInterfaze : function(txt, phase, allFeatures,kind){
-			//var document = document;
-		
+		show_insertFeatureInterfaze : function(txt, phase, allFeatures,kind,option){
+			//EIG: html String-a html kodea bihurtu
+			window.console.log("in intefazea");
 			var p = document.createElement("p");
 			p.innerHTML = txt;
 			p.setAttribute("style", UI.Dialog.fontStyle+"display: block; margin: 0 0 20px; text-align: center;");
 			
+			//EIG: ACEPT botoia sortu
 			var yes_btn = document.createElement("input");
 			yes_btn.setAttribute("type", "button");
 			yes_btn.setAttribute("id", "general_FFD_dialog_yes");
 			yes_btn.setAttribute("value", "Acept");
 			yes_btn.setAttribute("style", UI.Dialog.buttonStyle);
-		
 			yes_btn.addEventListener("click", function(e){			
-				//delete prompt
 				DeltaUtils.selectedInsert(p,phase,allFeatures,kind);
 				UI.Dialog.remove_dialog();
-			
 				yes_callback();
 			});
 	
+			//EIG: CANCEL botoia sortu
 			var no_btn = document.createElement("input");
 			no_btn.setAttribute("type", "button");
 			yes_btn.setAttribute("id", "general_FFD_dialog_no");
 			no_btn.setAttribute("value", "Cancel");
+			if(option==5){
+				no_btn.setAttribute("value", "Acept");
+			}
 			no_btn.setAttribute("style", UI.Dialog.buttonStyle);
-			
 			no_btn.addEventListener("click", function(e){			
-				//delete prompt
 				UI.Dialog.remove_dialog();
-		
 				no_callback();
 			});
-			
+
+			//EIG: Interfazeari botoiak txertatu.
 			var elements = [p, yes_btn, no_btn];
-	
-			//create dialog with created elements
+			window.console.log(elements);
+			if(option==5){
+				var elements = [ p, no_btn];
+			}
 			UI.Dialog.create_dialog(elements);
 		},
+
 
 		show_issueInterface : function(txt){
 			//var document = document;
@@ -4902,14 +4849,13 @@ UI.Dialog = {
 				no_callback();
 			});
 			
+			//EIG: Interfazeari botoiak txertatu.
 			var elements = [p, yes_btn, no_btn];
-	
-			//create dialog with created elements
 			UI.Dialog.create_dialog(elements);
 		},
 
 
-		show_ForksOfRepository : function(txt, Forks, newFeature,parent, option){
+		show_ForksOfRepository : function(txt, Forks, newFeature,parent, option, issue){
 			//var document = document;
 		
 			var p = document.createElement("p");
@@ -4926,7 +4872,7 @@ UI.Dialog = {
 			yes_btn.addEventListener("click", function(e){			
 				//delete prompt
 				window.console.log("UI dialog Forward progagation for selected forks");
-				DeltaUtils.selectedCheckForks(p, Forks, newFeature);
+				DeltaUtils.selectedCheckForks(p, Forks, newFeature, issue);
 				UI.Dialog.remove_dialog();
 			
 				yes_callback();
@@ -5001,21 +4947,21 @@ UI.Dialog = {
 		
 		show_product_configurator_dialog : function(txt, yes_callback, no_callback,option){
 			
+			//EIG: html String-a html kodea bihurtu
 			var p = document.createElement("p");
 			p.innerHTML = txt;
 			p.setAttribute("style", UI.Dialog.fontStyle+"display: block; margin: 0 0 20px; text-align: center;");
 			
+			//EIG: CREATEPRODUCT edo CREATEPROPOSEDPRODUCT botoia sortu
 			var yes_btn = document.createElement("input");
 			yes_btn.setAttribute("type", "button");
 			yes_btn.setAttribute("id", "general_FFD_dialog_yes");
-			//yes_btn.setAttribute("value", "Create Product");
 			if(option==1){
 				yes_btn.setAttribute("value", "Create Your Product");
 			}else if(option==2){
 				yes_btn.setAttribute("value", "Create Proposed Product");
 			}
 			yes_btn.setAttribute("style", UI.Dialog.buttonStyle);
-		
 			yes_btn.addEventListener("click", function(e){	//create Product clickatu denean		
 				window.console.log("yes_btn");
 				if(option==1){
@@ -5025,9 +4971,10 @@ UI.Dialog = {
 					window.console.log("Proposed product is created");
 					DeltaUtils.createProduct(1);
 				}
-				UI.Dialog.remove_dialog();//delete prompt
+					UI.Dialog.remove_dialog();
 			});
 	
+			//EIG: CHECKVALIDITY edo CHECKVALIDITYAGAIN	 botoia sortu
 			var no_btn = document.createElement("input");
 			no_btn.setAttribute("type", "button");
 			no_btn.setAttribute("id", "general_FFD_dialog_no");
@@ -5036,32 +4983,31 @@ UI.Dialog = {
 			}else if(option==2){
 				no_btn.setAttribute("value", "Check validity again");
 			}
-			
 			no_btn.setAttribute("style", UI.Dialog.buttonStyle);
-			
 			no_btn.addEventListener("click", function(e){			
-				//delete prompt
 				UI.Dialog.remove_dialog();
 				DeltaUtils.selectedCheck(p);
 			});
 			
+			//EIG: CANCEL botoia sortu
 			var calcel_btn = document.createElement("input");
 			calcel_btn.setAttribute("type", "button");
 			calcel_btn.setAttribute("id", "general_FFD_dialog_cancel");
 			calcel_btn.setAttribute("value", "Cancel");
+			if(option==5){
+				calcel_btn.setAttribute("value", "Acept");
+			}
 			calcel_btn.setAttribute("style", UI.Dialog.buttonStyle);
-			
 			calcel_btn.addEventListener("click", function(e){			
-				//delete prompt
 				UI.Dialog.remove_dialog();
 			});
 
+			//EIG:CHECKVALIDITYOFANOTHERPRODUCT botoia sortu
 			var start_btn = document.createElement("input");
 			start_btn.setAttribute("type", "button");
 			start_btn.setAttribute("id", "general_FFD_dialog_start");
 			start_btn.setAttribute("value", "Check Validity of another Product");
 			start_btn.setAttribute("style", UI.Dialog.buttonStyle);
-			
 			start_btn.addEventListener("click", function(e){			
 				//delete prompt
 				window.console.log("botoia");
@@ -5069,16 +5015,16 @@ UI.Dialog = {
 				UI.Dialog.remove_dialog();
 			});
 
+			//EIG: egoeraren arabera, sortu beharreko interfazearen elementuak gehitu.
 			if(option==0){
 				var elements = [p,no_btn, calcel_btn];
 			}else if (option==1){
 				var elements = [p,  yes_btn, start_btn, calcel_btn];
 			}else if(option==2){
 				var elements = [p,no_btn, yes_btn,calcel_btn];
+			}else if(option==5){
+				var elements = [p,calcel_btn];
 			}
-			//var elements = [p, yes_btn, no_btn, calcel_btn];
-	
-			//create dialog with created elements
 			UI.Dialog.create_dialog(elements);
 		}
 	},
