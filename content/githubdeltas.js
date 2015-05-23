@@ -2807,6 +2807,8 @@ InsertFeatureEController.prototype.execute=function(act){
  }
  IssueEController.prototype._singletonInstance = this;        
 };
+
+//EIG: ForwardPropagation sakatzerakoan exekutatzen da "run" zatia.
 IssueEController.prototype.execute=function(act){ //compose product and create a repository for the user + config.blob
 
 	
@@ -2820,16 +2822,18 @@ IssueEController.prototype.execute=function(act){ //compose product and create a
 			window.console.log("amaituta!!");
 		}else if(act=="run"){
 
+			//EIG: html kodetik issue-aren id lortzen da.
 			window.console.log("in eider Forward propagation");
 			window.console.log("title lortzen....");
 			var titleIssue= GitHub.getissueTitle();
 			window.console.log(titleIssue);//zenbakia #8
-			titleIssue=titleIssue.substring(1,titleIssue.length);//8
-			//DeltaUtils.interfaceOfPropagation();
+			titleIssue=titleIssue.substring(1,titleIssue.length);//zenbakia 8
 			DeltaUtils.selectedCheckIssue("aa",titleIssue);
    		}
 
  };
+
+ //EIG: InsertFeature sakatzerakoan exekutatzen da "run" zatia.
 InsertFeatureEController.prototype.execute=function(act){ //compose product and create a repository for the user + config.blob
 
 	
@@ -2917,98 +2921,6 @@ InstallEController.prototype.execute=function(act){ //compose product and create
 
 var DeltaUtils={};
 
-
-//Eider new forward propagation function
-//ghUser:application engineer, ghRepo=product repository, forwardFeature= name of feature to propagate
-/*DeltaUtils.enactForwardPropagation=function(ghUser,ghRepo,fordwardFeature, isNewFeature){
-	var token=GitHub.getAuthenticityToken();
-	var author=GitHub.getCurrentAuthor(); 
-	var repo=GitHub.getCurrentRepository();
-	window.console.log(" in enactForward");
-	//step 1: Comprobar que existe el product.config
-			ghRepo.fetch(function (err, res){
-	          if(err) { window.console.log("ERROR ghRepo.fetch"); }
-				ghRepo.fetchBranches(function (err, res) {
-					var master=ghRepo.getBranchByName("master");
-					master.fetchContents(function (err, res){
-				        if(err) { throw "outch ..." }
-				        var productConfigFile = master.getFileByName("product.config");//DeltaUtils.getProductConfigName()
-				      	if(productConfigFile==null){
-				      		window.alert("There is no "+DeltaUtils.getProductConfigName()+" file in master branch!\nPropagation aborted.");
-				      	  	return;
-				      	}
-				      	else{
-				      	  	//window.console.log(222-3);
-				      	  	//step 2: leer el product config
-
-				      	  	productConfigFile.fetchContent(function (err, res){
-		            			if(err) { throw "outch ..." }
-		           				window.console.log("Config File Content: "+productConfigFile.getRawContent());
-		           			 	var ghAuthor= new Gh3.User(author);
-								var authorRepo = new Gh3.Repository(repo, ghAuthor);
-		           				authorRepo.fetch(function (err, res){//fetching feature Repository
-							        if(err) { window.console.log("ERROR authorRepo.fetch"); }
-								    authorRepo.fetchBranches(function (err, res){ //ir a las branches del author
-								    //Step 2.1 parse productConfig File
-				           				var lines=productConfigFile.getRawContent().split("\n");
-				           				window.console.log(lines);
-				           				var colums;
-				           				var branches=[];
-				           				var commits=[];
-				           				var i;
-				           				//window.console.log(444);
-				           				window.console.log("fordwardFeature: "+fordwardFeature);
-				           				var featureSplit=fordwardFeature.split(":")[1];
-				           				//window.console.log("featureSplit: "+featureSplit);
-				           				var configFileContent="";//file for featureHouse composition
-				           				
-				           				//download features at commits stated in product.config file!
-				           				for (i=0; i<lines.length-1; i++){
-				           					var l=lines[i];
-				           					colums=l.split(" ");
-				           					window.console.log("analyzing product feature: "+l);
-				           					branches.push(colums[0]);//branch-feature
-				           					//step 3: descargarse los branches con el commit adecuado y el updated branch actual //https://github.com/lemome88/stack/tree/3d6d53d2c77bb06e5de6c9f90953dd3e0eadfb81
-				           					configFileContent+=branches[i]+"\n";
-				           					window.console.log(fordwardFeature +"!="+colums[0]);
-				           					if(fordwardFeature!=colums[0]){//si no es la feature to update
-				           					  window.console.log("feature "+ branches[i]+ " remains equal");
-				           					  commits.push(colums[1]);
-				           					  DeltaUtils.newSeedConfig+=colums[0]+" "+colums[1]+"\n";
-				           					  var shaToFetch=colums[1];
-				           					  window.console.log("aaa");
-				           					  DeltaUtils.getCommitContent(ghAuthor,authorRepo,ghAuthor, shaToFetch,branches[i],configFileContent,DeltaUtils.newSeedConfig,false,true);
-				           					  window.console.log("eee");
-				           					}
-				           					else{ //if the feature already exists and it is updated 
-				           					  //get updated files!!
-				           					  window.console.log("get updated files for "+ branches[i]+" and commit sha:"+colums[1]);
-				           					  commits.push(colums[1]);
-				           					 var fetchBranch=authorRepo.getBranchByName(branches[i]);
-				           					 DeltaUtils.newSeedConfig+=colums[0]+" "+fetchBranch.sha+"\n";
-				           					 DeltaUtils.extractBranchContents(fetchBranch,ghAuthor,ghRepo,configFileContent,DeltaUtils.newSeedConfig,false,true);
-				           					}
-						           		}//end for
-						           		window.console.log(" before isNewFeature");
-
-						           		if(isNewFeature){//if a new feature need to be propagated-->Eider hau zure kasua
-						           			window.console.log(" in  isNewFeature");
-						           			window.console.log("getting new feature for "+fordwardFeature);
-				           					var featureBranch=authorRepo.getBranchByName(fordwardFeature);
-				           					branches.push(fordwardFeature); 
-				           					commits.push(featureBranch.getLastCommit().sha);
-				           					DeltaUtils.newSeedConfig+=fordwardFeature+" "+featureBranch.getLastCommit().sha+"\n";
-				           					DeltaUtils.extractBranchContents(featureBranch,ghAuthor,ghRepo,configFileContent,DeltaUtils.newSeedConfig,false,true);
-				           				}
-						           	
-									});
-		           				});
-		          			});
-				      	}
-			      	});
-			    });
-			});
-};*/
 
 DeltaUtils.enactForwardPropagation=function(ghUser,ghRepo,fordwardFeature, isNewFeature){
 	var token=GitHub.getAuthenticityToken();
@@ -3168,24 +3080,27 @@ DeltaUtils.interfaceOfPropagation=function(){
 	
 }
 
+//EIG: issue-aren id erabiliz, issue-aren izenburua lortzen da hedatu nahi den ezaugarriaren informazioa lortzeko
 DeltaUtils.selectedCheckIssue=function(docu,title){
-
-		window.console.log("in selectedCheckIssue");
-		//DeltaUtils.editIssue(issueSelected);
-		var token=GitHub.getAuthenticityToken();
-		var user=GitHub.getUserName(); //application engineer 
-		var author=GitHub.getCurrentAuthor(); //application engineer
-		var repo=GitHub.getCurrentRepository(); 
-		var ghUser=new Gh3.User(user);
-		var ghUserRepo=new Gh3.Repository(repo,ghUser);
-		DeltaUtils.sleep(1000);
-		ghUserRepo.fetch(function (err, res) {
-			window.console.log(ghUserRepo);
-			if(err) { window.console.log("ERROR ghRepo.fetch");}
+	//EIG: Beharreko aldagaiak lortu.
+	var token=GitHub.getAuthenticityToken();
+	var user=GitHub.getUserName(); //application engineer 
+	var author=GitHub.getCurrentAuthor(); //application engineer
+	var repo=GitHub.getCurrentRepository(); 
+	var ghUser=new Gh3.User(user);
+	var ghUserRepo=new Gh3.Repository(repo,ghUser);
+	DeltaUtils.sleep(1000);
+	//EIG: Biltegia atzitu
+	ghUserRepo.fetch(function (err, res) {
+		window.console.log(ghUserRepo);
+		if(err) { window.console.log("ERROR ghRepo.fetch");}
+			//EIG: Biltegiaren issue-ak lortu
 			ghUserRepo.fetchIssues(function(err,res){
+				//EIG: Irekita dagoen issue-a lortu id-aren bitartez
 				var issues= ghUserRepo.getIssueByNumber(title);
 				window.console.log("selected forks: "+title);
 				window.console.log(issues.state);
+				//EIG: issue-aren izenburutik nahi den informazioa lortu (gurasoa, izena eta mota)
 				var arrayOfFeatures = issues.title.split('_');
 				window.console.log(arrayOfFeatures);
 				var parent= arrayOfFeatures[4];
@@ -3193,10 +3108,8 @@ DeltaUtils.selectedCheckIssue=function(docu,title){
 				var kind= arrayOfFeatures[1];
 				window.console.log("Parent: "+parent+" ------> New Feature: "+ newFeature+"---> Kind: "+kind);
 				DeltaUtils.createConfiguratorForPropagation(kind,parent,newFeature,issues);
-		
 			});
-		});
-		
+	});		
  
 }
 //EIG: InsertFeature step2 || InsertFeature step4
@@ -3291,7 +3204,7 @@ DeltaUtils.validNameOfNewFeature=function(allFeatures,checkedOption,kind){
 	//EIG: Izena ez bada errepikatzen, konfirmazioa eskatu eta ezaugarria sortu.
 	if(valid==1){
 		window.console.log("return 1");
-		var confirm =window.confirm( "Information of the new feature \n-Kind: "+ kind+"  \n-Paren:"+checkedOption+" \n-Name:" + newName);
+		var confirm =window.confirm( "Information of the new feature \n-Kind: "+ kind+"  \n-Parent:"+checkedOption+" \n-Name:" + newName);
 		if (confirm == true) {
 		    DeltaUtils.createFeature(checkedOption,kind,newName);
 		} 
@@ -3365,96 +3278,102 @@ DeltaUtils.editModelFile=function(kind,insertValid,newName,checkedOption){
 }
 
 
-
+//EIG: Biltegiaren Fork guztien product.config irakurtzen ditu ea ezaugarri berriaren gurasoa inplementatua duten.
 DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFeature,forksWithParent,issue){
-		//var kont=0;
-	//for (j=0; j<Forks.length;j++){
-		var repo=GitHub.getCurrentRepository();
-		var author=GitHub.getCurrentAuthor();
-		var ghAuthor = new Gh3.User(author);
-		var ghRepo = new Gh3.Repository(repo, ghAuthor);
-		var fork = Forks[kont];
-		window.console.log("Fork.fetch!!!!!!");
-		window.console.log(fork);
-		//var user=GitHub.getUserName(); u dont use it
-		var ghUserRepo=new Gh3.Repository(fork.name,fork.user);
-		var repo=GitHub.getCurrentRepository(); 
-		window.console.log("Fetching forks for repo: "+fork.name+" and author: "+fork.user);
-		DeltaUtils.sleep(1000);
-		fork.fetch(function(err,res){
-			fork.fetchBranches(function (err, res) {
-				var master=fork.getBranchByName("master");//3: get master branh
-				master.fetchContents(function (err, res) {//4: get contents (folders and files) for master branch
-		       		if(err) { throw "outch ..." }
-		       		var productConfig = master.getFileByName("product.config");
-		   	  		if(productConfig==null){
-		   	  			window.console.log("Could not reach product.config file in master branch!\n.");
-		      	  		return;
-		   	  		}
-		   	  		else{
-		   	  			productConfig.fetchContent(function (err, res) {//6:fetch file content
-		  	  				var content=productConfig.getRawContent();
-			   	  			var arrayOfFeatureConfig = content.split('\n');
-			   	  			for (i=0; i<arrayOfFeatureConfig.length;i++){		
-								window.console.log(arrayOfFeatureConfig[i]);
-								var featureName = arrayOfFeatureConfig[i].split(' ');
-									if(featureName[0]==parent){
-										forksWithParent=forksWithParent+1;
-										window.console.log("badago ezaugarria"+fork.user.login);
-										//return 1;
-										configString+=("<input value=");
-										configString+=(kont);
-										if(kind=="mandatory"){
-											configString+=(" name='forks' class='features' type=checkbox disabled checked />");
-										}else{
-											configString+=("  name='forks' class='features' type=checkbox  />");
-										}
-										configString+=( "Name of de repository: "+fork.name+ " ----> Owner: "+fork.user.login);
-										configString+=("<br>");
-								
-										window.console.log(configString);
-										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);//borratu ezazu nahi eskero Eider
-										//lerro hau jarri behar izan dut pantailatxoa ikusteko
-			   							
-									}	
-							}
-								
-			      	  			if(kont==Forks.length-1){
-			      	  				window.console.log("amaieran"+ forksWithParent);
-			      	  				if(forksWithParent==0){
-			      	  				var parentinissue=0;
-									window.console.log("bukatu");
-										DeltaUtils.sleep(2000);
-										ghRepo.fetchIssues(function(err,res){
-											window.console.log(ghRepo);
-											var issues= ghRepo.getIssues();
-											var kontIssue=0;
-											DeltaUtils.isParentInIssue(issues,kontIssue, 0, Forks, newFeature, parent, issue);
-										
-										});
+	//EIG: beharrezko aldagaiak lortu.
+	var repo=GitHub.getCurrentRepository();
+	var author=GitHub.getCurrentAuthor();
+	var ghAuthor = new Gh3.User(author);
+	var ghRepo = new Gh3.Repository(repo, ghAuthor);
+	var fork = Forks[kont];
+	window.console.log("Fork.fetch!!!!!!");
+	window.console.log(fork);
+	var ghUserRepo=new Gh3.Repository(fork.name,fork.user);
+	var repo=GitHub.getCurrentRepository(); 
+	window.console.log("Fetching forks for repo: "+fork.name+" and author: "+fork.user);
+	DeltaUtils.sleep(1000);
+	//EIG: Uneko fork-a atzitu.
+	fork.fetch(function(err,res){
+		//EIG: Fork-aren adarrak atzitu.
+		fork.fetchBranches(function (err, res) {
+			//EIG: Fork-aren "master" adarra atzitu.
+			var master=fork.getBranchByName("master");
+			//EIG: "master" adarraren edukia atzitu.
+			master.fetchContents(function (err, res) {
+	       		if(err) { throw "outch ..." }
+	       		//EIG: "product.config" fitxategia atzitu.
+	       		var productConfig = master.getFileByName("product.config");
+	       		//EIG: "product.config" fitxategia ez bada existitzen.
+	   	  		if(productConfig==null){
+	   	  			window.console.log("Could not reach product.config file in master branch!\n.");
+	      	  		return;
+	   	  		}
+	   	  		//EIG: "product.config" fitxategia existitzen bada.
+	 	  		else{
+	 	  			//EIG: "product.config" fitxategiaren edukia atzitu.
+	   	  			productConfig.fetchContent(function (err, res) {
+	   	  				//EIG: fitxategian, gurasoaren izena dagoen ala ez aztertu
+	  	  				var content=productConfig.getRawContent();
+		   	  			var arrayOfFeatureConfig = content.split('\n');
+		   	  			for (i=0; i<arrayOfFeatureConfig.length;i++){		
+							window.console.log(arrayOfFeatureConfig[i]);
+							var featureName = arrayOfFeatureConfig[i].split(' ');
+							//EIG: gurasoaren izena fitxategian aurkitzen bada, bere html kodea sortu.
+							if(featureName[0]==parent){
+								forksWithParent=forksWithParent+1;
+								window.console.log("badago ezaugarria"+fork.user.login);
+								configString+=("<input value=");
+								configString+=(kont);
+								//EIG: ezaugarria derrigorrezkoa bada, aukeratuta eta desgaitua agertzen da.
+								if(kind=="mandatory"){
+									configString+=(" name='forks' class='features' type=checkbox disabled checked />");
+								//EIG: ezaugarria derrrigorrezkoa ez bada, ez da aukeratuta agertzen.
 								}else{
-										UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);
+									configString+=("  name='forks' class='features' type=checkbox  />");
 								}
-
-								}else{
-									kont=kont+1;
-									DeltaUtils.readProductConfig(Forks,parent,configString,kind,kont,newFeature,forksWithParent, issue);								
-
+								configString+=( "Name of de repository: "+fork.name+ " ----> Owner: "+fork.user.login);
+								configString+=("<br>");
+								window.console.log(configString);
+								UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);
+			   							
+							}	
+						}
+						//EIG: rekurtsibitatea gauzatu: bukatu bada zergatik bukatu den aztertu, bestela hurrengo fork-a aztertu		
+			      	  	if(kont==Forks.length-1){
+			      	  		window.console.log("amaieran"+ forksWithParent);
+			      	  		//EIG: gurasoa fitxategian ez bada aurkitu, ea hedatu gabeko ezaugarri baten "semea" den aztertu.
+			      	  		if(forksWithParent==0){
+			      	  			var parentinissue=0;
+								window.console.log("bukatu");
+								DeltaUtils.sleep(2000);
+								//EIG: issue-ak atzitu.
+								ghRepo.fetchIssues(function(err,res){
+									window.console.log(ghRepo);
+									var issues= ghRepo.getIssues();
+									var kontIssue=0;
+									DeltaUtils.isParentInIssue(issues,kontIssue, 0, Forks, newFeature, parent, issue);			
+								});
+							}else{
+								UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);
 							}
-									
-						});
-			      	}
-			    });
 
-			      	  
+						}else{
+							kont=kont+1;
+							DeltaUtils.readProductConfig(Forks,parent,configString,kind,kont,newFeature,forksWithParent, issue);								
+
+						}
+									
+					});
+			    }
 			});
 
 		});
-	
 
-	//}
+	});
+	
 }
 
+//EIG: ezaugarri berri baten gurasoa hedatua dagoen ala ez aztertzen du.
 DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, parent, issue){
 	configString="";
 	var issueTitle= issues[kont].title.split("_");
@@ -3463,16 +3382,18 @@ DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, 
 		window.console.log("in side");
 		isInIssue=1;
 	}
-
+	//EIG: issue guztiak aztertu badira.
 	if(kont==issues.length-1){
 		window.console.log(isInIssue);
+		//EIG: ez da issue-rik gurasoaren izenarekin.
 		if(isInIssue==0){
 			configString+=("<p> NO repository with "+ parent + " feature </p>");
+		//EIG: badago issue-ren bat gurasoaren izenarekin.
 		}else{
 			configString+=("<p> You have to propagate "+ parent + " feature before </p>");
 		}
 		UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,0, issue);
-	
+	//EIG: issue guztiak ez badira aztertu, hurrengoarekin jarraitu.
 	}else{
 		window.console.log("is in else");
 		kont=kont+1;
@@ -3483,20 +3404,20 @@ DeltaUtils.isParentInIssue=function(issues, kont, isInIssue, Forks, newFeature, 
 
 
 
-
+//EIG: Hedaketan, biltegiak erakusten dituen interfazea sortzen hasten da.
 DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,forksWithParent,issue){
-	
+	//EIG: Beharreko aldagaiak lortu.
 	var user=GitHub.getUserName(); 
 	var repo=GitHub.getCurrentRepository(); 
 	var author=GitHub.getCurrentAuthor();
-
-	window.console.log("Fetching forks for repo: "+repo+" and author: "+author);
 	var ghUser=new Gh3.User(author);
 	var ghUserRepo=new Gh3.Repository(repo,ghUser);
-
+	window.console.log("Fetching forks for repo: "+repo+" and author: "+author);
+	//EIG: Biltegia atzitu
 	ghUserRepo.fetch(function (err, res) {
 		window.console.log(ghUserRepo);
 		if(err) { window.console.log("ERROR ghRepo.fetch");}
+		//EIG: Biltegiaren fork-ak lortu
 		ghUserRepo.fetchFork(function(err,res){
 			var Forks= ghUserRepo.getForks();
 			window.console.log("Forks!!");
@@ -3505,13 +3426,16 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 			var configString='<html><head><title>GitDelta Configurator</title></head>'
 			configString+=("<div align='center'>");
 			configString+=("<p> Forks of the repository </p>");
+			//EIG: Biltegiak Fork-erik ez badu:
 			if(Forks.length==0){
 				configString+=("<p> NO forks of the repository </p>");
 				UI.Dialog.show_ForksOfRepository (configString,0,issue);
 			}
+			//EIG: Hedatu beharreko ezaugarria derrigorrezkoa bada:
 			if(kind=="mandatory"){
 				configString+=("<p> The feature will spread to all products </p>");
 			}
+			//EIG: Hedatu beharreko ezaugarria aukerakoa edo aldakia bada:
 			else{
 				configString+=("<p> Choose product for propagation </p>");
 			}
@@ -3530,71 +3454,65 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 var multiPropagationCount=0;
 var multiPropagationTimeOut="undefined";
 var Forks, newFeaure;
+
+//EIG: Hedapena ze Fork-etara egin.
 DeltaUtils.selectedCheckForks=function(docu, Forks, newFeature, issue){
+	//EIG: beharrezko aldagaiak lortu
 	Forks=Forks;
 	newFeature=newFeature;
 	window.console.log("in selectedCheckForks");
 	var user=GitHub.getUserName(); 
 	var ghUser=new Gh3.User(user);
-
 	DeltaUtils.forwardForks=Forks;
 	DeltaUtils.user=user;
 	DeltaUtils.newFeature=newFeature;
-
-		  // perform the security-sensitive operation here
-		var checkedValue = null; 
-		var parser = new DOMParser();
-		var html_nodes= docu;// parser.parseFromString(configString,"text/html");
-		var inputElements = html_nodes.getElementsByClassName('features');
-		var forkSelectedind =[];
-		var forkSelected =[];
-		var forkkont=0;
-
-		for(var i=0; i<inputElements.length; i++){
-			if(inputElements[i].checked){//if checked
-				forkSelectedind[forkkont]=inputElements[i].value;
-				forkkont=forkkont+1;
-			}
-
+	//EIG: html kodetik aukeratutako fork-en indizea lortu
+	var checkedValue = null; 
+	var parser = new DOMParser();
+	var html_nodes= docu;// parser.parseFromString(configString,"text/html");
+	var inputElements = html_nodes.getElementsByClassName('features');
+	var forkSelectedind =[];
+	var forkSelected =[];
+	var forkkont=0;
+	for(var i=0; i<inputElements.length; i++){
+		if(inputElements[i].checked){//if checked
+			forkSelectedind[forkkont]=inputElements[i].value;
+			forkkont=forkkont+1;
 		}
-
-		for(var i=0; i<forkSelectedind.length; i++){
-
-			forkSelected[i]=Forks[forkSelectedind[i]]
-		}
-
-		window.console.log(Forks);
-		window.console.log(forkSelected);
-
-		var titleIssue= GitHub.getissueTitle();
-		window.console.log("editissue" + titleIssue);
-		titleIssue=titleIssue.substring(1,titleIssue.length);
-		DeltaUtils.editIssue(titleIssue);
-
-		
-		multiPropagationCount=0; 
-		window.console.log("BeforeRecursive");
-		multiPropagationTimeOut=window.setInterval(function(){
+	}
+	//EIG: Array batean aukeratutako Fork-ak sartu.
+	for(var i=0; i<forkSelectedind.length; i++){
+		forkSelected[i]=Forks[forkSelectedind[i]]
+	}
+	window.console.log(Forks);
+	window.console.log(forkSelected);
+	//EIG: issue-a itxi.
+	var titleIssue= GitHub.getissueTitle();
+	window.console.log("editissue" + titleIssue);
+	titleIssue=titleIssue.substring(1,titleIssue.length);
+	DeltaUtils.editIssue(titleIssue);
+	//EIG: forwardRecusive funtzioa exekutatu 15 segunduro.
+	multiPropagationCount=0; 
+	window.console.log("BeforeRecursive");
+	multiPropagationTimeOut=window.setInterval(function(){
 		 DeltaUtils.forwardRecursive(forkSelected, newFeature, DeltaUtils.recursivekont, issue);
-		},15000);
+	},15000);
 			
 }
 
+//EIG: Hedapena fork guztietan gertatzen dela ziurtatzen du.
 DeltaUtils.forwardRecursive=function(Forks, newFeature, multiPropagationCount, issue){
 	var user=GitHub.getUserName(); 
 	var ghUser=new Gh3.User(user);
+	//EIG: Fork-en bat hedatzeko falta bada, enactForwardPropagation exekutatu
 	if(DeltaUtils.recursivekont < Forks.length){
 		window.console.log("Deia fork "+ Forks[DeltaUtils.recursivekont].user.login);
 		window.console.log("Deltakont "+ DeltaUtils.recursivekont);
 		DeltaUtils.enactForwardPropagation(ghUser,Forks[DeltaUtils.recursivekont],newFeature,true);
 		DeltaUtils.recursivekont=DeltaUtils.recursivekont+1;
 	}
+	//EIG: Fork guztietara hedapena gertatu bada, amaitu.
 	else {
-		//DeltaUtils.editIssue(issue);
-		/*var titleIssue= GitHub.getissueTitle();
-		window.console.log("editissue" + titleIssue);
-		titleIssue=titleIssue.substring(1,titleIssue.length);
-		DeltaUtils.editIssue(titleIssue);*/
 		window.clearInterval(multiPropagationTimeOut);
 		window.alert("finished propagating changes!");
 	}
@@ -4246,9 +4164,8 @@ DeltaUtils.createIssue=function(newName,body,checkedOption,kind){
 	window.console.log("finish issue");
 }
 
+//EIG: Issue bat ixten du.
 DeltaUtils.editIssue=function(number){
-
-	
 	window.console.log("Issue number to edit: "+number);
 	var user=GitHub.getUserName(); 
 	var repo=GitHub.getCurrentRepository(); 
@@ -4854,43 +4771,38 @@ UI.Dialog = {
 			UI.Dialog.create_dialog(elements);
 		},
 
-
+		//EIG: Biltegiak erakusten dituen interfazea sortzen du.
 		show_ForksOfRepository : function(txt, Forks, newFeature,parent, option, issue){
-			//var document = document;
-		
+			//EIG: html String-a html kodea bihurtu
 			var p = document.createElement("p");
 			p.innerHTML = txt;
 			p.setAttribute("style", UI.Dialog.fontStyle+"display: block; margin: 0 0 20px; text-align: center;");
 			
-			
+			//EIG: ACEPT botoia:
 			var yes_btn = document.createElement("input");
 			yes_btn.setAttribute("type", "button");
 			yes_btn.setAttribute("id", "general_FFD_dialog_yes");
 			yes_btn.setAttribute("value", "Acept");
 			yes_btn.setAttribute("style", UI.Dialog.buttonStyle);
-		
 			yes_btn.addEventListener("click", function(e){			
-				//delete prompt
 				window.console.log("UI dialog Forward progagation for selected forks");
 				DeltaUtils.selectedCheckForks(p, Forks, newFeature, issue);
 				UI.Dialog.remove_dialog();
-			
 				yes_callback();
 			});
 		
-	
+			//EIG: CANCEL botoia:
 			var no_btn = document.createElement("input");
 			no_btn.setAttribute("type", "button");
 			yes_btn.setAttribute("id", "general_FFD_dialog_no");
 			no_btn.setAttribute("value", "Cancel");
 			no_btn.setAttribute("style", UI.Dialog.buttonStyle);
-			
 			no_btn.addEventListener("click", function(e){			
-				//delete prompt
 				UI.Dialog.remove_dialog();
-		
 				no_callback();
 			});
+
+			//EIG: Interfazean agertuko diren elementuak erabaki
 			window.console.log("in interface"+option);
 			if(option==1){
 
@@ -4898,10 +4810,7 @@ UI.Dialog = {
 			}else{
 				var elements = [p,  no_btn];
 			}
-			
-			
-	
-			//create dialog with created elements
+			//EIG: interfazea sortu.
 			UI.Dialog.create_dialog(elements);
 		},
 											
