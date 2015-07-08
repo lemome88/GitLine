@@ -1387,10 +1387,12 @@ var GitHubWrapper=function(){
  //added by me:Leti 					//*[@class='minibutton select-menu-button js-menu-target']//*[@class='js-select-button']	
  this.nodes.currentBranch={node:null,listeners:{},xpath:"/html/body/div/div[2]/div[2]/div/div[2]/div[4]/div/span/span[2]", supplements:[],regexp:/([^ \n]+)/};
  
- this.nodes.userName={node:null,listeners:{},xpath:"//*[@id='user-links']//span[@class='css-truncate-target']",supplements:[],regexp:/([^ \n]+)/}; 
+ //this.nodes.userName={node:null,listeners:{},xpath:"//*[@id='user-links']//span[@class='css-truncate-target']",supplements:[],regexp:/([^ \n]+)/}; 
+ this.nodes.userName={node:null,listeners:{},xpath:"//*[@name='user-login']/@content",supplements:[],regexp:/([^ \n]+)/}; 
+
  this.nodes.currentAuthor={node:null,listeners:{},xpath:"//*[@class='author']",supplements:[],regexp:/([^ \n]+)/};
 
- this.nodes.currentRepository={node:null,listeners:{},xpath:"//*[contains(@class,'js-current-repository')]",supplements:[],regexp:/([^ \n]+)/}; 
+ this.nodes.currentRepository={node:null,listeners:{},xpath:"/html/body/div[1]/div[3]/div[2]/div/h1/strong/a",supplements:[],regexp:/([^ \n]+)/}; 
 this.nodes.issueTitle={node:null,listeners:{},xpath:"//span[@class='gh-header-number']",supplements:[],regexp:/([^ \n]+)/}; 
  //this.nodes.issueTitle=
  this.nodes.authenticityToken={node:null,listeners:{},xpath:"//meta[@name='csrf-token']/@content",supplements:[],regexp:/([^ \n]+)/}; 
@@ -3023,6 +3025,28 @@ DeltaUtils.enactForwardPropagation=function(ghUser,ghRepo,fordwardFeature, isNew
 //EIG: InsertFeature step1.
 //EIG: InsertFeature sakatzerakoan, agertzen den lehenengo interfazea. Ezaugarri mota aukeratzeko.
 DeltaUtils.interfaceOfInsertFeature=function(insertoption){
+	/*//var configString='<html><head><title>Insert a Feature</title></head>';
+	var configString=("<p> Forks os the repository </p>");
+	//configString+=("<p> The feature will be spreaded to all products </p>");
+	//configString+=("<p> The feature is mandatory </p>");
+	configString+=("<p> Choose product for propagation </p>");
+	configString+=("<p> The feature is alternative </p>");
+	
+	configString+=("<input value=");
+	configString+=("  name='forks' class='features' type=checkbox  />");
+	configString+=( "Name of the repository: stack-spl  ----> Owner: EH92 ");
+	configString+=("<br>");
+	
+	/*configString+=("<input value=");
+	configString+=("  name='forks' class='features' type=checkbox  />");
+	configString+=( "Name of the repository: stack-spl  ----> Owner: Gipuzkoa ");
+	configString+=("<br>");*/
+	
+	/*configString+=("<input value=");
+	configString+=("  name='forks' class='features' type=checkbox  />");
+	configString+=( "Name of the repository: stack-spl  ----> Owner: SanSebas ");
+	configString+=("<br>");*/
+
 	
 	//EIG: html kodea sortu.
 	var configString='<html><head><title>Insert a Feature</title></head>';
@@ -3038,6 +3062,7 @@ DeltaUtils.interfaceOfInsertFeature=function(insertoption){
 
 	}
 	//EIG: interfazea sortuko duen funtzioari deitu.
+
 	UI.Dialog.show_insertFeatureInterfaze(configString,1);
 
 }
@@ -3331,7 +3356,7 @@ DeltaUtils.readProductConfig=function(Forks,parent,configString,kind,kont,newFea
 								}else{
 									configString+=("  name='forks' class='features' type=checkbox  />");
 								}
-								configString+=( "Name of de repository: "+fork.name+ " ----> Owner: "+fork.user.login);
+								configString+=( "Name of the repository: "+fork.name+ " ----> Owner: "+fork.user.login);
 								configString+=("<br>");
 								window.console.log(configString);
 								UI.Dialog.show_ForksOfRepository (configString, Forks, newFeature, parent,1, issue);
@@ -3433,11 +3458,17 @@ DeltaUtils.createConfiguratorForPropagation=function(kind,parent,newFeature,fork
 			}
 			//EIG: Hedatu beharreko ezaugarria derrigorrezkoa bada:
 			if(kind=="mandatory"){
-				configString+=("<p> The feature will spread to all products </p>");
+				configString+=("<p> The feature will be spreaded to all products </p>");
+				configString+=("<p> The feature is mandatory </p>");
 			}
 			//EIG: Hedatu beharreko ezaugarria aukerakoa edo aldakia bada:
 			else{
 				configString+=("<p> Choose product for propagation </p>");
+				if(kind=="optional"){
+					configString+=("<p> The feature is optional </p>");
+				}else{
+					configString+=("<p> The feature is alternative </p>");
+				}
 			}
 
 			var forksWithParent=0;
@@ -3594,6 +3625,7 @@ DeltaUtils.createConfigurator=function(option, kind){
 									  configString+=(result.nodeValue);
 									  window.console.log("Uneko ezaugarria:"+ result.nodeValue+ "Kontadore: "+kont);
 									  window.console.log(arrayofFeaturesReverse);
+							
 									  for (i=0; i<arrayofFeaturesReverse.length-1;i++){
 									  		window.console.log("infor");
 											if(arrayofFeaturesReverse[i]==result.nodeValue){
@@ -3601,16 +3633,19 @@ DeltaUtils.createConfigurator=function(option, kind){
 												window.console.log("in core");
 											}
 										}
+
 										//EIG: ezaugarria aukeratuta agertu behar bada.
 										if(core==1){
+											window.console.log("!!!!!!!!");
 										 	configString+=("  name='features' class='features' type=checkbox  disabled checked/>");
 										 	window.console.log("in DISABLED:"+result.nodeValue+kont);
 										 	kont=kont+1;
 										//EIG: ezaugarria aukeratu gabe agertu behar bada.
 										 }else{
+										 	window.console.log("????????");
 										  	configString+=("  name='features' class='features' type=checkbox  />");
 										 }
-										  
+										  window.console.log("*********");
 										  configString+=(result.nodeValue);
 										  configString+=("<br>");
 										  result=nodes.iterateNext();
@@ -3886,8 +3921,7 @@ DeltaUtils.enactProductComposition=function(listBranches,ghRepo,ghAuthor){//list
 }
 
 DeltaUtils.getUserAccessToken=function(){
-	return "cda3c4c6d92c32677bb3cd0eb2c0a1f88fab4259"; 
-	 //Eider Token: "877f51e5b60ac4fa652c21788d2b2d29a12f4556"  50c7322c9da66aff5eebcb525bfd0b9ad9e39c4c;
+	return "d2e90603f9955ee89255dde7e4c61f6f71a9eaa5"; // <--your token here
 }
 DeltaUtils.getAssanaApiToken=function(){
 	return "2kDOdTDX.8lAUnLWS0V6UIPizPdQhMeI";
